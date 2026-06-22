@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Estudantes</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn {
+            text-decoration: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            transition: .3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login {
+            background: #0d6efd;
+        }
+
+        .cadastro {
+            background: #198754;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #info {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #0d6efd;
+            color: white;
+        }
+
+        th {
+            padding: 14px;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f5ff;
+        }
+
+        .erro {
+            color: red;
+        }
+
+        .loading {
+            color: #666;
+        }
+
+        .sem-dados {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Bem-vindo</h1>
+
+        <div class="buttons">
+            <a href="login.html" class="btn login">Login</a>
+            <a href="cadastrousuario.html" class="btn cadastro">Cadastro</a>
+        </div>
+    </div>
+
+    <div class="card">
+
+        <div id="info" class="loading">
+            Carregando estudantes...
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Idade</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela-estudantes">
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+async function carregarEstudantes() {
+
+    const tbody = document.getElementById("tabela-estudantes");
+    const info = document.getElementById("info");
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:8000/estudantes"
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Erro HTTP ${response.status}`
+            );
+        }
+
+        const estudantes = await response.json();
+
+        tbody.innerHTML = "";
+
+        info.textContent =
+            `Total de estudantes: ${estudantes.length}`;
+
+        if (estudantes.length === 0) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="sem-dados">
+                        Nenhum estudante encontrado
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        estudantes.forEach(estudante => {
+
+            const linha = document.createElement("tr");
+
+            linha.innerHTML = `
+                <td>${estudante.id}</td>
+                <td>${estudante.nome}</td>
+                <td>${estudante.email}</td>
+                <td>${estudante.idade}</td>
+            `;
+
+            linha.addEventListener("click", () => {
+
+                window.location.href =
+                    `estudante.html?id=${estudante.id}`;
+
+            });
+
+            tbody.appendChild(linha);
+
+        });
+
+    }
+    catch (erro) {
+
+        info.innerHTML = `
+            <span class="erro">
+                ${erro.message}
+            </span>
+        `;
+
+        console.error(erro);
+
+    }
+
+}
+
+carregarEstudantes();
+</script>
+
+</body>
+</html>

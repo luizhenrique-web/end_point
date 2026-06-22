@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            background:#f4f6f9;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+        }
+
+        .card{
+            width:100%;
+            max-width:450px;
+            background:white;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 2px 10px rgba(0,0,0,.1);
+        }
+
+        h1{
+            text-align:center;
+            margin-bottom:25px;
+        }
+
+        .grupo{
+            margin-bottom:15px;
+        }
+
+        label{
+            display:block;
+            margin-bottom:5px;
+            font-weight:bold;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:6px;
+        }
+
+        button{
+            width:100%;
+            border:none;
+            background:#0d6efd;
+            color:white;
+            padding:12px;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        button:hover{
+            background:#0b5ed7;
+        }
+
+        #mensagem{
+            margin-top:15px;
+            text-align:center;
+            font-weight:bold;
+        }
+
+        .erro{
+            color:red;
+        }
+
+        .sucesso{
+            color:green;
+        }
+
+        .voltar{
+            display:block;
+            text-align:center;
+            margin-top:15px;
+            text-decoration:none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <h1>Login</h1>
+
+    <form id="form-login">
+
+        <div class="grupo">
+            <label>Email</label>
+            <input
+                type="email"
+                id="email"
+                required
+            >
+        </div>
+
+        <div class="grupo">
+            <label>Senha</label>
+            <input
+                type="password"
+                id="senha"
+                required
+            >
+        </div>
+
+        <button type="submit">
+            Entrar
+        </button>
+
+    </form>
+
+    <div id="mensagem"></div>
+
+    <a href="index.html" class="voltar">
+        Voltar
+    </a>
+
+</div>
+
+<script>
+
+document
+.getElementById("form-login")
+.addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    const mensagem =
+        document.getElementById("mensagem");
+
+    mensagem.innerHTML = "";
+
+    const credenciais = {
+        email: document.getElementById("email").value,
+        senha: document.getElementById("senha").value
+    };
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:8000/usuarios/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(credenciais)
+            }
+        );
+
+        const dados = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                dados.detail || "Email ou senha inválidos"
+            );
+        }
+
+        localStorage.setItem(
+            "access_token",
+            dados.access_token
+        );
+
+        localStorage.setItem(
+            "token_type",
+            dados.token_type
+        );
+
+        mensagem.innerHTML =
+            '<span class="sucesso">Login realizado com sucesso!</span>';
+
+        setTimeout(() => {
+            window.location.href = "privada.html";
+        }, 1000);
+
+    }
+    catch (erro) {
+
+        mensagem.innerHTML =
+            `<span class="erro">${erro.message}</span>`;
+
+        console.error(erro);
+    }
+
+});
+</script>
+
+</body>
+</html>
